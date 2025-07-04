@@ -21,7 +21,7 @@ jobs:
             git reset --hard HEAD &&
             git clean -fd &&
             git pull origin main &&
-            export PATH=/root/.nvm/versions/node/v22.13.1/bin:\$PATH &&
+            export PATH=/root/.nvm/versions/node/v22.13.1/bin:$PATH &&
             npm install -g pnpm &&
             pnpm install &&
             pnpm run build &&
