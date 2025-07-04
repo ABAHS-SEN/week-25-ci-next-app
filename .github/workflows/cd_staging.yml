@@ -10,19 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploying everything to the staging cluster
     steps:
-      - run: |
+      - name: Setup SSH and Deploy
+        run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 600 ~/ssh_key
           mkdir -p ~/.ssh
           echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
           ssh -i ~/ssh_key ubuntu@43.204.102.244 "
+            export NVM_DIR=\$HOME/.nvm &&
+            source \$NVM_DIR/nvm.sh &&
+            nvm use 22 &&
             cd week-25-ci-next-app &&
             git reset --hard HEAD &&
             git clean -fd &&
             git pull origin main &&
-            export PATH=/root/.nvm/versions/node/v22.13.1/bin:$PATH &&
+            node -v &&
+            npm -v &&
             npm install -g pnpm &&
+            pnpm -v &&
             pnpm install &&
             pnpm run build &&
             pm2 restart fe-sever &&
