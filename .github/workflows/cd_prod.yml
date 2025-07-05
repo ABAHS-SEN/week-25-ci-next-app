@@ -22,7 +22,7 @@ jobs:
             cd week-25-ci-next-app &&
             git reset --hard HEAD &&
             git clean -fd &&
-            git pull origin main &&
+            git pull origin production &&
             node -v &&
             npm -v &&
             npm install -g pnpm &&
