@@ -9,6 +9,7 @@ jobs:
   redeploy_everything:
     runs-on: ubuntu-latest
     name: Deploying everything to the staging cluster
+
     steps:
       - name: Setup SSH and Deploy
         run: |
@@ -19,17 +20,23 @@ jobs:
             export NVM_DIR=\$HOME/.nvm &&
             source \$NVM_DIR/nvm.sh &&
             nvm use 22 &&
+
             cd week-25-ci-next-app &&
             git reset --hard HEAD &&
             git clean -fd &&
             git pull origin main &&
+
+            # Create .env file in packages/prisma
+            echo \"DATABASE_URL=${{ secrets.DATABASE_URL }}\" > packages/prisma/.env &&
+
             node -v &&
             npm -v &&
             npm install -g pnpm &&
             pnpm -v &&
             pnpm install &&
             pnpm run build &&
+
             pm2 restart fe-server &&
-            pm2 restart http-server && 
+            pm2 restart http-server &&
             pm2 restart ws-server
           "
