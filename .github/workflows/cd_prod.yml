@@ -3,43 +3,43 @@ name: Deploy to staging
 on:
   push:
     branches:
-      - production
+      - production  # Trigger only when the 'production' branch is pushed
 
 jobs:
   redeploy_everything:
-    runs-on: ubuntu-latest
     name: Deploying everything to the staging cluster
+    runs-on: ubuntu-latest
 
     steps:
       - name: Setup SSH and Deploy
         run: |
+          # Write private SSH key to a file
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 600 ~/ssh_key
 
-          ssh -i ~/ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.109.122.195 "
-            export NVM_DIR=\$HOME/.nvm &&
-            source \$NVM_DIR/nvm.sh &&
-            nvm use 22 &&
+          # SSH into the server and run deployment commands
+          ssh -i ~/ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.109.122.195 << 'EOF'
+            # Load NVM and use Node.js v22
+            export NVM_DIR=$HOME/.nvm
+            source $NVM_DIR/nvm.sh
+            nvm use 22
 
-            # Go to the project directory and get the latest production branch
-            cd week-25-ci-next-app &&
-            git fetch origin production &&
-            git checkout production &&
-            git reset --hard origin/production &&
-            git clean -fd &&
+            # Navigate to app directory and reset to clean state
+            cd week-25-ci-next-app
+            git reset --hard HEAD
+            git clean -fd
+            git pull origin production
 
-            # Create .env file inside packages/prisma
-            echo \"DATABASE_URL=${{ secrets.DATABASE_URL }}\" > packages/prisma/.env &&
+            # Node and package setup
+            node -v
+            npm -v
+            npm install -g pnpm
+            pnpm -v
+            pnpm install
 
-            # Build and restart services
-            node -v &&
-            npm -v &&
-            npm install -g pnpm &&
-            pnpm -v &&
-            pnpm install &&
-            pnpm run build &&
-
-            pm2 restart fe-server &&
-            pm2 restart http-server &&
+            # Build and restart processes
+            pnpm run build
+            pm2 restart fe-server
+            pm2 restart http-server
             pm2 restart ws-server
-          "
+          EOF
