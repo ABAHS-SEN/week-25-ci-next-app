@@ -21,14 +21,17 @@ jobs:
             source \$NVM_DIR/nvm.sh &&
             nvm use 22 &&
 
+            # Go to the project directory and get the latest production branch
             cd week-25-ci-next-app &&
-            git reset --hard HEAD &&
+            git fetch origin production &&
+            git checkout production &&
+            git reset --hard origin/production &&
             git clean -fd &&
-            git pull origin production &&
 
-            # Create .env file for Prisma
+            # Create .env file inside packages/prisma
             echo \"DATABASE_URL=${{ secrets.DATABASE_URL }}\" > packages/prisma/.env &&
 
+            # Build and restart services
             node -v &&
             npm -v &&
             npm install -g pnpm &&
