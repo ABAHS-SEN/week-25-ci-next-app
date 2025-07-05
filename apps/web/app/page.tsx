@@ -1,4 +1,4 @@
-
+export const dynamic = "force-dynamic";
 import { client } from "@repo/db/client";
 
 export default async function Home() {
