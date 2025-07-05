@@ -14,10 +14,8 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 600 ~/ssh_key
-          mkdir -p ~/.ssh
-          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
-          ssh -i ~/ssh_key ubuntu@3.109.122.195 "
+          ssh -i ~/ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.109.122.195 "
             export NVM_DIR=\$HOME/.nvm &&
             source \$NVM_DIR/nvm.sh &&
             nvm use 22 &&
